@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo de Praxia Visuoconstrutiva</title>
+  <style>
+    body {
+      background-color: #ccc;
+      margin: 0;
+      overflow: hidden;
+    }
+    .square {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      border: 2px solid black;
+      background: white;
+      cursor: grab;
+    }
+    .diagonal-ur {
+      background: linear-gradient(to bottom left, red 50%, white 50%);
+    }
+    .diagonal-dr {
+      background: linear-gradient(to top left, red 50%, white 50%);
+    }
+    .diagonal-ul {
+      background: linear-gradient(to bottom right, red 50%, white 50%);
+    }
+    .diagonal-dl {
+      background: linear-gradient(to top right, red 50%, white 50%);
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const states = ['white', 'red', 'diagonal-ur', 'diagonal-dr', 'diagonal-ul', 'diagonal-dl'];
+
+    const squares = [];
+    const numSquares = 9;
+    const spacing = 110;
+    const startX = (window.innerWidth - spacing * 3 + 10) / 2;
+    const startY = (window.innerHeight - spacing * 3 + 10) / 2;
+
+    for (let i = 0; i < numSquares; i++) {
+      const square = document.createElement('div');
+      square.classList.add('square');
+      square.style.left = `${startX + (i % 3) * spacing}px`;
+      square.style.top = `${startY + Math.floor(i / 3) * spacing}px`;
+      square.dataset.state = 0;
+
+      // Clique direito alterna estado de cor
+      square.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        let stateIndex = parseInt(square.dataset.state);
+        stateIndex = (stateIndex + 1) % states.length;
+        square.dataset.state = stateIndex;
+        updateColor(square, stateIndex);
+      });
+
+      // Arrastar
+      let offsetX, offsetY, dragging = false;
+
+      square.addEventListener('mousedown', e => {
+        if (e.button === 0) {
+          dragging = true;
+          offsetX = e.offsetX;
+          offsetY = e.offsetY;
+          square.style.cursor = 'grabbing';
+        }
+      });
+
+      document.addEventListener('mousemove', e => {
+        if (dragging) {
+          square.style.left = `${e.clientX - offsetX}px`;
+          square.style.top = `${e.clientY - offsetY}px`;
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        dragging = false;
+        square.style.cursor = 'grab';
+      });
+
+      document.body.appendChild(square);
+      squares.push(square);
+    }
+
+    function updateColor(square, index) {
+      square.className = 'square';
+      const state = states[index];
+      if (state === 'white') {
+        square.style.background = 'white';
+      } else if (state === 'red') {
+        square.style.background = 'red';
+      } else {
+        square.classList.add(state);
+        square.style.background = '';
+      }
+    }
+  </script>
+</body>
+</html>
